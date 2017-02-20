@@ -1,0 +1,75 @@
+﻿@{
+    Page.Title = "Add A New Scripture";
+
+    Validation.RequireField("book", "You must enter a book name to add a scripture.");
+    Validation.RequireField("chapter", "You must enter a chapter name to add a scripture.");
+    
+    var book = "";
+    var chapter = "";
+    var verse = "";
+    var favorite = "";
+    var note = "";
+
+    if (IsPost)
+    {
+        book = Request.Form["book"];
+        chapter = Request.Form["chapter"];
+        verse = Request.Form["verse"];
+        favorite = Request.Form["favorite"];
+        note = Request.Form["note"];
+
+        var db = Database.Open("ScriptureDB");
+        var insertCommand = "INSERT INTO scripture (book, chapter, verse, favorite, note) Values(@0, @1, @2, @3, @4)";
+        db.Execute(insertCommand, book, chapter, verse, favorite, note);
+        Response.Redirect("~/Index");
+
+    }
+}
+<h2>Add a Scripture</h2>
+@Html.ValidationSummary()
+<form method="post">
+    <fieldset>
+
+
+        <legend>Scripture</legend>
+        <p class="block">
+            @Html.Label("Book")
+            @Html.TextBox("book", Request.Form["book"])
+            @Html.ValidationMessage("book")
+        </p>
+
+        <p class="block">
+            @Html.Label("Chapter")
+            @Html.TextBox("chapter", Request.Form["chapter"])
+            @Html.ValidationMessage("chapter")
+        </p>
+
+        <p class="block">
+            @Html.Label("Verse")
+            @Html.TextBox("verse", Request.Form["verse"])
+        </p>
+
+        <p class="block">
+            @Html.Label("Favorite")
+            <select name="favorite">
+                <option value="Y">Yes</option>
+                <option value="N">No</option>
+                <option value="Any">--Select--</option>
+            </select>
+        </p>
+
+        <p class="block">
+            @Html.Label("Note")
+            @Html.TextArea("note", Request.Form["note"])
+        </p>
+
+        <p>
+            <input type="submit" name="buttonSubmit" value="Add Scripture" />
+        </p>
+
+    </fieldset>
+
+</form>
+
+@*<p><a href="~/Index.cshtml">Return to My Favorite Scriptures</a>
+    </p>*@

@@ -1,0 +1,59 @@
+﻿@{
+    Page.Title = "My Favorites";
+
+    var db = Database.Open("ScriptureDB");
+    var selectCommand = "SELECT * FROM scripture";
+    var searchTerm = "";
+
+    if (!Request.QueryString["search"].IsEmpty())
+    {
+        selectCommand = "SELECT * FROM scripture WHERE book LIKE @0 or note LIKE @0";
+        searchTerm = "%" + Request["search"] + "%";
+    }
+
+    var selectedData = db.Query(selectCommand, searchTerm);
+    var grid = new WebGrid(source: selectedData, defaultSort: "book", rowsPerPage: 20);
+}
+
+<h2>My Favorites</h2>
+<div>
+    <form method="get">
+        <div>
+            <label for="search"></label>
+            <input type="text" name="search" value="@Request.QueryString["search"]" />
+            <input type="Submit" value="Search" /><br />
+        </div>
+    </form>
+
+</div>
+
+<div>
+    @grid.GetHtml(
+        tableStyle: "grid",
+        headerStyle: "head",
+        alternatingRowStyle: "alt",
+                    
+        mode: WebGridPagerModes.Numeric,
+                    columns: grid.Columns(
+                    
+                        
+            grid.Column(format: @<a href="~/Edit.cshtml">Edit</a>, style: "edit"),
+            grid.Column("book", "Book", style: "book"),
+            grid.Column("chapter", "Chapter", style: "chapter"),
+            grid.Column("verse", "Verse", style: "verse"),
+            grid.Column("favorite", "Favorite", style: "favorite"),
+            grid.Column("note", "Note", style: "note"),
+            grid.Column("DateAdded", "Date Added", format: @<text>@item.DateAdded.ToString("MMM dd yyyy")</text>, style: "date"),
+            grid.Column(format: @<a href="~/Delete.cshtml">Delete</a>, style: "delete")
+                    )
+           )
+</div>
+
+@*<div>
+     <p>
+            
+    <a href="~/Add.cshtml">Add a Scripture</a>
+        
+    </p>
+    
+    </div>*@

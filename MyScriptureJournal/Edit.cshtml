@@ -1,0 +1,95 @@
+﻿   @{
+       Page.Title = "Edit Scripture";
+       
+       var scriptureId = "";
+       var book = "";
+       var chapter = "";
+       var verse = "";
+       var favorite = "";
+       var note = "";
+
+       if (!IsPost)
+       {
+           if (!Request.QueryString["Id"].IsEmpty() && Request.QueryString["Id"].IsInt())
+           {
+               scriptureId = Request.QueryString["Id"];
+               var db = Database.Open("Scripture DB");
+               var dbCommand = "SELECT * FROM scripture WHERE ID = @0";
+               var row = db.QuerySingle(dbCommand, scriptureId);
+
+               if (row != null)
+               {
+                   favorite = row.favorite;
+                   book = row.book;
+                   chapter = row.chapter;
+                   note = row.note;
+                   verse = row.verse;
+               }
+               else
+               {
+                   Validation.AddFormError("You need to select a scripture to run a query");
+               }
+           }
+           else
+           {
+               Validation.AddFormError("You need to select a scripture to run a query.");
+           }
+       }
+
+       if (IsPost)
+       {
+           Validation.RequireField("book", "You must enter a Book name to run a query.");
+           Validation.RequireField("chapter", "You must enter a chapter number to run a query.");
+
+           book = Request.Form["book"];
+           chapter = Request.Form["chapter"];
+           verse = Request.Form["verse"];
+           favorite = Request.Form["favorite"];
+           note = Request.Form["note"];
+           scriptureId = Request.Form["scriptureId"];
+
+           if (Validation.IsValid())
+           {
+               var db = Database.Open("ScriptureDB");
+               var updateCommand = "UPDATE scripture SET book=@0, chapter=@1, verse=@2, favorite=@3, note=@4 WHERE Id=@5";
+               db.Execute(updateCommand, book, chapter, verse, favorite, note, scriptureId);
+               Response.Redirect("~/Index.cshtml");
+           }
+
+       }
+}
+<h2>Edit a Scripture</h2>
+@Html.ValidationSummary()
+<form method="post">
+    <fieldset>
+        <legend>Scripture</legend>
+        <p class="block">
+            @Html.Label("Book")
+            @Html.TextBox("book", value: @book)
+            @Html.ValidationMessage("book")
+        </p>
+        <p class="block">
+            @Html.Label("Chapter")
+            @Html.TextBox("chapter", value: @chapter)
+            @Html.ValidationMessage("chapter")
+        </p>
+        <p class="block">
+            @Html.Label("Verse")
+            @Html.TextBox("verse", value: @verse)
+        </p>
+        <p class="block">
+            @Html.Label("Favorite")
+            <select name="favorite">
+                <option value="Y">Yes</option>
+                <option value="N">No</option>
+            </select>
+        </p>
+        <p class="block">
+            @Html.Label("Note")
+            @Html.TextArea("note", value: @note)
+        </p>
+        <input type="hidden" name="scriptureId" value="@scriptureId" />
+        <p><input type="submit" name="buttonSubmit" value="Submit" /></p>
+    </fieldset>
+</form>
+@*<p><a href="~/Index.cshtml">Back to My Scriptures</a></p>*@

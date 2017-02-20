@@ -1,0 +1,49 @@
+﻿@{
+    var db = Database.Open("ScriptureDB");
+    var selectCommand = "SELECT * FROM list where favorite = 'on'";
+        var searchTerm = "";
+
+    if (!Request.QueryString["search"].IsEmpty())
+    {
+
+    }
+
+
+
+    var selectedData = db.Query(selectCommand, searchTerm);
+    var grid = new WebGrid(source: selectedData, defaultSort: "book", rowsPerPage: 20);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+<body>
+    <h2>My Favorites</h2>
+    <div>
+        <form method="get">
+            <div>
+                <label for="search"></label>
+                <input type="text" name="search" value="@Request.QueryString["search"]" />
+                <input type="Submit" value="Search" /><br />
+            </div>
+        </form>
+    </div>
+    <div>
+        @grid.GetHtml(
+            tableStyle: "grid",
+            headerStyle: "head",
+            alternatingRowStyle: "alt",
+            columns: grid.Columns(
+                grid.Column("book", "Book"),
+                grid.Column("chapter", "Chapter"),
+                grid.Column("verse", "Verse"),
+                grid.Column("note", "Note"),
+                grid.Column("DateAdded", "Date Added")
+)
+)
+    </div>
+</body>
+</html>
+

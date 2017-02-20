@@ -1,0 +1,96 @@
+﻿@{
+    Page.Title = "Delete Scripture";
+
+    var scriptureId = "";
+    var book = "";
+    var chapter = "";
+    var verse = "";
+    var favorite = "";
+    var note = "";
+    var dateAdded = "";
+
+    if (!IsPost)
+    {
+        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].IsInt())
+        {
+            scriptureId = Request.QueryString["Id"];
+            var db = Database.Open("ScriptureDB");
+            var dbCommand = "SELECT * FROM scripture WHERE ID = @0";
+            var row = db.QuerySingle(dbCommand, scriptureId);
+
+            if (row != null)
+            {
+                book = row.Book;
+                chapter = row.Chapter;
+                verse = row.Verse;
+                favorite = row.Favorite;
+                note = row.Note;
+                dateAdded = row.dateAdded;
+            }
+            else
+            {
+                Validation.AddFormError("You need to select a scripture to run the query.");
+            }
+        }
+        else
+        {
+            Validation.AddFormError("You need to select a scripture to run the query.");
+        }
+    }
+
+    if (IsPost && !Request["buttonDelete"].IsEmpty())
+    {
+        scriptureId = Request.Form["scriptureId"];
+        var db = Database.Open("ScriptureDB");
+        var deleteCommand = "DELETE FROM scripture WHERE ID = @0";
+        db.Execute(deleteCommand, scriptureId);
+        Response.Redirect("~/Index.cshtml");
+    }
+}
+<h2>Delete Scripture</h2>
+@Html.ValidationSummary()
+<p><a href="~/Index.cshtml">Back to My Favorite Scriptures</a>
+    </p>
+
+<form method="post">
+    <fieldset>
+
+        <legend>Scripture</legend>
+
+        <p class="block">
+            @Html.Label("Book")
+            <span>@book</span>
+        </p>
+
+        <p class="block">
+            @Html.Label("Chapter")
+            <span>@chapter</span>
+        </p>
+
+        <p class="block">
+            @Html.Label("Verse")
+            <span>@verse</span>
+        </p>
+
+        <p class="block">
+            @Html.Label("Notes")
+            <span>@note</span>
+        </p>
+
+
+        <p class="block">
+            @Html.Label("Date Added")
+            <span>@dateAdded</span>
+        </p>
+
+        <input type="hidden" name="scriptureId" value="@scriptureId" />
+
+        <p><input type="submit" name="buttonDelete" value="Delete Selected Scripture" />
+        </p>
+
+    </fieldset>
+
+    <p><a href="~/Index.cshtml">Back to Scripture List</a>
+    </p>
+
+</form>
